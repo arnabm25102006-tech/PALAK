@@ -1016,7 +1016,7 @@ export default function Home() {
 
   <div className="grid md:grid-cols-3 gap-8">
 
-    <div className="bg-white/80 backdrop-blur-2xl rounded-[35px] p-8 shadow-xl hover:scale-105 transition duration-500">
+    <div className="bg-lavender/80 backdrop-blur-2xl rounded-[35px] p-8 shadow-xl hover:scale-105 transition duration-500">
 
       <div className="text-yellow-400 text-2xl mb-5">
         ⭐⭐⭐⭐⭐
