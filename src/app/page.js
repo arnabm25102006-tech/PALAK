@@ -17,7 +17,40 @@ export default function Home() {
   const [budget, setBudget] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState([]);
 console.log(demoProducts);
+function compareProducts() {
+  const items = products
+    .toLowerCase()
+    .split(",")
+    .map((item) => item.trim());
+
+  const output = [];
+
+  items.forEach((item) => {
+    const product = demoProducts.find(
+      (p) => p.name === item
+    );
+
+    if (product) {
+      const prices = [
+        { platform: "Blinkit", price: product.blinkit },
+        { platform: "Zepto", price: product.zepto },
+        { platform: "JioMart", price: product.jiomart },
+      ];
+
+      prices.sort((a, b) => a.price - b.price);
+
+      output.push({
+        name: product.name,
+        cheapest: prices[0].platform,
+        price: prices[0].price,
+      });
+    }
+  });
+
+  setResults(output);
+}
   return (
 
     <main className="min-h-screen bg-gradient-to-br from-[#f7faf8] via-[#eefaf1] to-[#e6f7ec] overflow-hidden relative">
@@ -108,22 +141,24 @@ console.log(demoProducts);
             <button
             disabled={loading}
               onClick={() => {
-               if (products && budget) {
 
-  setLoading(true);
+  if (products && budget) {
 
-  setTimeout(() => {
+    compareProducts();
 
-    setLoading(false);
-    setShowResults(true);
+    setLoading(true);
 
-  }, 2200);
+    setTimeout(() => {
+      setLoading(false);
+      setShowResults(true);
+    }, 2200);
 
-}
-              }}
+  }
+
+}}
               className="bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-[1.03] hover:shadow-[0_15px_40px_rgba(16,185,129,0.35)] active:scale-[0.98] text-white text-xl font-bold px-8 py-4 rounded-2xl transition duration-300 hover:bg-green-600 text-white text-xl font-bold px-8 py-4 rounded-2xl transition active:scale-[0.97]hover:scale-105 active:scale-95 transition duration-300"
             >
-{loading ? "Analyzing Prices..." : "Find Best Deals"}
+{loading ? "Analyzing Prices..." : "Compare & Save Money"}
             </button>
             
               <div className="flex items-center gap-4 mt-6 text-sm text-gray-500 flex-wrap active:scale-[0.97]hover:scale-105 active:scale-95 transition duration-300">
@@ -141,16 +176,42 @@ console.log(demoProducts);
   </div>
 
 </div>
-            {!showResults && (
+            {showResults && (
+  <div className="mt-6 space-y-3">
 
-              <div className="mt-6 text-gray-400">
+    {results.length > 0 ? (
 
-                Enter groceries and budget to unlock smart savings ✨
+      results.map((item, index) => (
 
-              </div>
+        <div
+          key={index}
+          className="bg-green-50 border border-green-200 rounded-2xl p-4"
+        >
+          <h3 className="font-bold text-lg capitalize">
+            {item.name}
+          </h3>
 
-            )}
+          <p className="text-green-700">
+            Cheapest Platform: {item.cheapest}
+          </p>
 
+          <p>
+            Price: ₹{item.price}
+          </p>
+        </div>
+
+      ))
+
+    ) : (
+
+      <div className="text-gray-400">
+        No matching products found.
+      </div>
+
+    )}
+
+  </div>
+)}
           </div>
 
         </div>
@@ -541,6 +602,42 @@ console.log(demoProducts);
   </div>
 
 </section>
+<section className="py-24 px-8 md:px-20">
+  <h2 className="text-5xl font-black text-center mb-16">
+    How PALAK Works
+  </h2>
+
+  <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+
+    <div className="bg-white rounded-3xl p-10 shadow-lg">
+      <h3 className="text-2xl font-bold mb-4">
+        1. Enter Products
+      </h3>
+      <p>
+        Add groceries like milk, bread, rice and more.
+      </p>
+    </div>
+
+    <div className="bg-white rounded-3xl p-10 shadow-lg">
+      <h3 className="text-2xl font-bold mb-4">
+        2. Compare Prices
+      </h3>
+      <p>
+        PALAK checks multiple grocery platforms instantly.
+      </p>
+    </div>
+
+    <div className="bg-white rounded-3xl p-10 shadow-lg">
+      <h3 className="text-2xl font-bold mb-4">
+        3. Save Money
+      </h3>
+      <p>
+        Buy from the cheapest platform and reduce expenses.
+      </p>
+    </div>
+
+  </div>
+</section>
 
               {/* PRODUCT CARDS */}
               <div className="space-y-4">
@@ -696,7 +793,7 @@ console.log(demoProducts);
 
   </div>
 
-  <div className="grid md:grid-cols-3 gap-8">
+  <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
 
     {/* Card 1 */}
     <div className="bg-white/70 backdrop-blur-2xl rounded-[35px] p-10 shadow-xl hover:-translate-y-3 hover:shadow-[0_25px_60px_rgba(16,185,129,0.18)] transition duration-500 border border-white/50">
@@ -1023,7 +1120,7 @@ console.log(demoProducts);
 
   </div>
 
-  <div className="grid md:grid-cols-3 gap-8">
+  <div className="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
 
     <div className="bg-lavender/80 backdrop-blur-2xl rounded-[35px] p-8 shadow-xl hover:scale-105 transition duration-500">
 
