@@ -1,23 +1,15 @@
 "use client";
-
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-import { demoProducts } from "../data/products";
+import Navbar from "../components/Navbar"
 import { useState } from "react";
+;
 
-async function fetchProducts() {
-  const response = await fetch("/api/compare");
-  const data = await response.json();
-  console.log(data);
-  return data;
-}
 export default function Home() {
 
   const [products, setProducts] = useState("");
   const [budget, setBudget] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
-console.log(demoProducts);
+
   return (
 
     <main className="min-h-screen bg-gradient-to-br from-[#f7faf8] via-[#eefaf1] to-[#e6f7ec] overflow-hidden relative">
