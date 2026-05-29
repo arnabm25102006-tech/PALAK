@@ -18,7 +18,9 @@ export default function Home() {
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
-  const [totalCost, setTotalCost] = useState(0);
+  const [bestPlatform, setBestPlatform] = useState("");
+const [totalSavings, setTotalSavings] = useState(0);
+  
 console.log(demoProducts);
 function compareProducts() {
   const items = products
@@ -27,6 +29,9 @@ function compareProducts() {
     .map((item) => item.trim());
 
   const output = [];
+  let blinkitTotal = 0;
+let zeptoTotal = 0;
+let jiomartTotal = 0;
   let total = 0;
 
   items.forEach((item) => {
@@ -35,6 +40,9 @@ function compareProducts() {
     );
 
     if (product) {
+      blinkitTotal += product.blinkit;
+zeptoTotal += product.zepto;
+jiomartTotal += product.jiomart;
       const prices = [
         { platform: "Blinkit", price: product.blinkit },
         { platform: "Zepto", price: product.zepto },
@@ -53,7 +61,17 @@ function compareProducts() {
   });
 
   setResults(output);
-  setTotalCost(total);
+  const totals = [
+  { platform: "Blinkit", total: blinkitTotal },
+  { platform: "Zepto", total: zeptoTotal },
+  { platform: "JioMart", total: jiomartTotal },
+];
+
+totals.sort((a, b) => a.total - b.total);
+
+setBestPlatform(totals[0].platform);
+setTotalSavings(totals[1].total - totals[0].total);
+ 
   
 }
   return (
@@ -197,11 +215,11 @@ function compareProducts() {
           </h3>
 
           <p className="text-green-700">
-            Cheapest Platform: {item.cheapest}
+            🏆 Best Price On: {item.cheapest}
           </p>
 
           <p>
-            Price: ₹{item.price}
+          💰 Lowest Price: ₹{item.price}  
           </p>
         </div>
 
@@ -255,6 +273,25 @@ function compareProducts() {
     </p>
   </div>
 )}
+<div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mt-4">
+  <h3 className="font-bold text-blue-700">
+    Best Platform
+  </h3>
+
+  <p className="text-2xl font-bold">
+    {bestPlatform}
+  </p>
+</div>
+
+<div className="bg-green-50 border border-green-200 rounded-2xl p-4 mt-4">
+  <h3 className="font-bold text-green-700">
+    Estimated Savings
+  </h3>
+
+  <p className="text-2xl font-bold">
+    ₹{totalSavings}
+  </p>
+</div>
         No matching products found.
       </div>
 
