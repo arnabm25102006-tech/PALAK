@@ -3,7 +3,7 @@
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { demoProducts } from "../data/products";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 async function fetchProducts() {
   const response = await fetch("/api/compare");
@@ -12,7 +12,7 @@ async function fetchProducts() {
   return data;
 }
 export default function Home() {
-
+const [suggestions, setSuggestions] = useState([]);
   const [products, setProducts] = useState("");
   const [budget, setBudget] = useState("");
   const [showResults, setShowResults] = useState(false);
@@ -20,9 +20,30 @@ export default function Home() {
   const [results, setResults] = useState([]);
   const [bestPlatform, setBestPlatform] = useState("");
 const [totalSavings, setTotalSavings] = useState(0);
-  
+  const [history, setHistory] = useState([]);
+  const [loggedUser, setLoggedUser] = useState("");
+  const [searchCount, setSearchCount] = useState(0);
+ useEffect(() => {
+  const user = localStorage.getItem("loggedInUser");
+
+  if (user) {
+    setLoggedUser(user);
+    const count =
+  Number(localStorage.getItem("searchCount") || 0);
+
+setSearchCount(count);
+  } else {
+    window.location.href = "/login";
+  }
+}, []);
 console.log(demoProducts);
 function compareProducts() {
+  const current =
+  Number(localStorage.getItem("searchCount") || 0) + 1;
+
+localStorage.setItem("searchCount", current);
+
+setSearchCount(current);
   const items = products
     .toLowerCase()
     .split(",")
@@ -61,6 +82,10 @@ jiomartTotal += product.jiomart;
   });
 
   setResults(output);
+  setHistory((prev) => [
+  products,
+  ...prev.slice(0, 4),
+]);
   const totals = [
   { platform: "Blinkit", total: blinkitTotal },
   { platform: "Zepto", total: zeptoTotal },
@@ -88,6 +113,49 @@ setTotalSavings(totals[1].total - totals[0].total);
       {/* NAVBAR */}
       <nav className="sticky top-6 z-50 mx-6 md:mx-20 rounded-3xl bg-white/70 backdrop-blur-xl border border-white/50 shadow-xl px-8 py-5 flex items-center justify-between">
 
+        {loggedUser && (
+  <div
+    style={{
+      textAlign: "right",
+      marginBottom: "10px",
+      fontWeight: "bold",
+    }}
+  >
+   {loggedUser && (
+  <div
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "15px",
+      fontWeight: "bold",
+    }}
+  >
+    <span>👤 Welcome, {loggedUser}</span>
+    <div style={{ marginTop: "10px" }}>
+  📊 Total Searches: {searchCount}
+</div>
+
+    <button
+      onClick={() => {
+        localStorage.removeItem("loggedInUser");
+        window.location.reload();
+      }}
+      style={{
+        background: "red",
+        color: "white",
+        border: "none",
+        padding: "8px 12px",
+        borderRadius: "8px",
+        cursor: "pointer",
+      }}
+    >
+      Logout
+    </button>
+  </div>
+)}
+  </div>
+)}
         <h1 className="text-5xl font-black text-green-600 tracking-tight">
           PALAK
         </h1>
@@ -148,11 +216,35 @@ setTotalSavings(totals[1].total - totals[0].total);
            <input
               type="text"
               value={products}
-              onChange={(e) => setProducts(e.target.value)}
+             onChange={(e) => {
+  const value = e.target.value;
+  setProducts(value);
+
+  const matches = demoProducts.filter((item) =>
+    item.name.toLowerCase().includes(value.toLowerCase())
+  );
+
+  setSuggestions(matches.slice(0, 5));
+}}
               placeholder="Enter groceries like milk, rice, bread..."
              className="w-full bg-[#f8fafc] border border-gray-200 rounded-2xl px-5 py-4 text-lg mb-5 focus:outline-none focus:ring-4 focus:ring-green-200 focus:border-green-500 transition duration-300 placeholder:text-gray-400 shadow-sm"
             />
-
+{suggestions.length > 0 && (
+  <div className="bg-white border border-gray-200 rounded-xl mt-2 shadow-md">
+    {suggestions.map((item, index) => (
+      <div
+        key={index}
+        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+        onClick={() => {
+          setProducts(item.name);
+          setSuggestions([]);
+        }}
+      >
+        {item.name}
+      </div>
+    ))}
+  </div>
+)}
             <input
               type="number"
               value={budget}
@@ -161,28 +253,49 @@ setTotalSavings(totals[1].total - totals[0].total);
               className="w-full bg-[#f8fafc] border border-gray-200 rounded-2xl px-5 py-4 text-lg mb-5 focus:outline-none focus:ring-4 focus:ring-green-200 focus:border-green-500 transition duration-300 placeholder:text-gray-400 shadow-sm rounded-2xl px-5 py-4 text-lg mb-5 focus:outline-none focus:ring-2 focus:ring-green-500"
             />
 
-            <button
-            disabled={loading}
-              onClick={() => {
+           <button
+  disabled={loading}
+  onClick={() => {
+    if (products && budget) {
+      compareProducts();
 
-  if (products && budget) {
+      setLoading(true);
 
-    compareProducts();
+      setTimeout(() => {
+        setLoading(false);
+        setShowResults(true);
+      }, 2200);
+    }
+  }}
+  className="bg-gradient-to-r from-green-500 to-emerald-600 text-white font-bold py-4 rounded-2xl w-full"
+>
+  {loading ? "Analyzing Prices..." : "Compare & Save Money"}
+</button>
 
-    setLoading(true);
+<button onClick={() => {
+  setProducts("");
+  setBudget("");
+  setResults([]);
+  setShowResults(false);
+}}>
+  CLEAR
+</button>
 
-    setTimeout(() => {
-      setLoading(false);
-      setShowResults(true);
-    }, 2200);
+<button onClick={() => {
+  localStorage.setItem("favoriteList", products);
+}}>
+  SAVE
+</button>
 
-  }
+<button onClick={() => {
+  const saved = localStorage.getItem("favoriteList");
+  if (saved) setProducts(saved);
+}}>
+  LOAD
+</button>
 
-}}
-              className="bg-gradient-to-r from-green-500 to-emerald-600 hover:scale-[1.03] hover:shadow-[0_15px_40px_rgba(16,185,129,0.35)] active:scale-[0.98] text-white text-xl font-bold px-8 py-4 rounded-2xl transition duration-300 hover:bg-green-600 text-white text-xl font-bold px-8 py-4 rounded-2xl transition active:scale-[0.97]hover:scale-105 active:scale-95 transition duration-300"
-            >
-{loading ? "Analyzing Prices..." : "Compare & Save Money"}
-            </button>
+
+
             
               <div className="flex items-center gap-4 mt-6 text-sm text-gray-500 flex-wrap active:scale-[0.97]hover:scale-105 active:scale-95 transition duration-300">
 
@@ -201,7 +314,9 @@ setTotalSavings(totals[1].total - totals[0].total);
 </div>
             {showResults && (
   <div className="mt-6 space-y-3">
-
+<div className="mb-4 font-bold text-green-700">
+  Products Found: {results.length}
+</div>
     {results.length > 0 ? (
 
       results.map((item, index) => (
@@ -236,6 +351,20 @@ setTotalSavings(totals[1].total - totals[0].total);
   <h3 className="font-bold text-green-700 mb-2">
     Smart Savings Tips 💡
   </h3>
+  <div className="bg-white border border-gray-200 rounded-2xl p-4 mt-4">
+  <h3 className="font-bold mb-3">
+    Recent Searches
+  </h3>
+
+  {history.map((item, index) => (
+    <div
+      key={index}
+      className="py-2 border-b border-gray-100"
+    >
+      {item}
+    </div>
+  ))}
+</div>
 
   <ul className="space-y-2 text-gray-700">
     <li>• Buy in bulk to reduce costs.</li>
@@ -267,7 +396,20 @@ setTotalSavings(totals[1].total - totals[0].total);
   </ul>
 </div>
     </h3>
+<div className="bg-white border border-gray-200 rounded-2xl p-4 mt-4">
+  <h3 className="font-bold mb-3">
+    Recent Searches
+  </h3>
 
+  {history.map((item, index) => (
+    <div
+      key={index}
+      className="py-2 border-b border-gray-100"
+    >
+      {item}
+    </div>
+  ))}
+</div>
     <p>
       Your budget is ₹{budget}. PALAK recommends choosing the cheapest platform for maximum savings.
     </p>
