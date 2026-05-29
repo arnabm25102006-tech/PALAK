@@ -18,6 +18,7 @@ export default function Home() {
   const [showResults, setShowResults] = useState(false);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState([]);
+  const [totalCost, setTotalCost] = useState(0);
 console.log(demoProducts);
 function compareProducts() {
   const items = products
@@ -26,6 +27,7 @@ function compareProducts() {
     .map((item) => item.trim());
 
   const output = [];
+  let total = 0;
 
   items.forEach((item) => {
     const product = demoProducts.find(
@@ -46,10 +48,13 @@ function compareProducts() {
         cheapest: prices[0].platform,
         price: prices[0].price,
       });
+      total += prices[0].price;
     }
   });
 
   setResults(output);
+  setTotalCost(total);
+  
 }
   return (
 
@@ -205,6 +210,51 @@ function compareProducts() {
     ) : (
 
       <div className="text-gray-400">
+       {budget && (
+  <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mt-4">
+    <h3 className="font-bold text-blue-700">
+      PALAK Recommendation
+      <div className="bg-green-50 border border-green-200 rounded-2xl p-4 mt-4">
+  <h3 className="font-bold text-green-700 mb-2">
+    Smart Savings Tips 💡
+  </h3>
+
+  <ul className="space-y-2 text-gray-700">
+    <li>• Buy in bulk to reduce costs.</li>
+    <li>• Compare prices before ordering.</li>
+    <li>• Watch for platform discounts.</li>
+    <li>• Use PALAK regularly to maximize savings.</li>
+  </ul>
+</div>
+    </h3>
+
+    <p>
+      Your budget is ₹{budget}. PALAK recommends choosing the cheapest platform for maximum savings.
+    </p>
+  </div>
+)}{budget && (
+  <div className="bg-blue-50 border border-blue-200 rounded-2xl p-4 mt-4">
+    <h3 className="font-bold text-blue-700">
+      PALAK Recommendation
+      <div className="bg-green-50 border border-green-200 rounded-2xl p-4 mt-4">
+  <h3 className="font-bold text-green-700 mb-2">
+    Smart Savings Tips 💡
+  </h3>
+
+  <ul className="space-y-2 text-gray-700">
+    <li>• Buy in bulk to reduce costs.</li>
+    <li>• Compare prices before ordering.</li>
+    <li>• Watch for platform discounts.</li>
+    <li>• Use PALAK regularly to maximize savings.</li>
+  </ul>
+</div>
+    </h3>
+
+    <p>
+      Your budget is ₹{budget}. PALAK recommends choosing the cheapest platform for maximum savings.
+    </p>
+  </div>
+)}
         No matching products found.
       </div>
 
@@ -927,7 +977,7 @@ function compareProducts() {
             </div>
 
             <div className="bg-green-100 text-green-700 px-6 py-4 rounded-2xl font-bold text-2xl">
-              ₹184 Saved Today
+              ₹{results.length * 18} Saved Today
             </div>
 
           </div>
@@ -942,7 +992,7 @@ function compareProducts() {
               </p>
 
               <h3 className="text-3xl font-black text-green-600">
-                Zepto
+                {results.length > 0 ? results[0].cheapest : "N/A"}
               </h3>
 
             </div>
